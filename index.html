@@ -76,7 +76,7 @@
 <body>
 
 <header>
-  <div class="badge">Batch B32 · PRO Track</div>
+  <div class="badge">Batch B32</div>
   <h1>Student <span>Score</span><br>Lookup</h1>
   <p class="subtitle">Masukkan Student ID untuk melihat progress dan total score kamu.</p>
 </header>
@@ -172,7 +172,7 @@
 </div>
 
 <footer>
-  Batch B32 · PRO Track &nbsp;·&nbsp; Data diperbarui cukup dengan mengganti file <code style="background:var(--surface2);padding:1px 5px;border-radius:4px">data.csv</code>
+  Batch B32 &nbsp;·&nbsp; <code style="background:var(--surface2);padding:1px 5px;border-radius:4px"></code>
 </footer>
 
 <script>
@@ -267,10 +267,9 @@ function getInitials(name) {
 }
 
 function getStatus(pct) {
-  if (pct >= 100) return { label: 'Full Completion', cls: 'excellent' };
-  if (pct >= 90)  return { label: 'Hampir Selesai',  cls: 'good' };
-  if (pct >= 60)  return { label: 'Perlu Ditingkatkan', cls: 'warning' };
-  return { label: 'Jauh Tertinggal', cls: 'danger' };
+  if (pct >= 100) return { label: 'Congrat 100% Completion', cls: 'excellent' };
+  if (pct >= 80)  return { label: 'Syarat Terpenuhi',  cls: 'good' };
+  if (pct <= 79)  return { label: 'Syarat Belum Terpenuhi', cls: 'warning' };
 }
 
 function showResult(student) {
