@@ -52,42 +52,6 @@
     color: var(--muted);
     margin-top: 4px;
   }
-  .sheet-config {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    flex-wrap: wrap;
-  }
-  .sheet-config input {
-    background: var(--surface2);
-    border: 1px solid var(--border2);
-    border-radius: 8px;
-    padding: 8px 14px;
-    color: var(--text);
-    font-family: var(--mono);
-    font-size: 0.72rem;
-    width: 340px;
-    outline: none;
-    transition: border-color 0.2s;
-  }
-  .sheet-config input:focus { border-color: var(--accent); }
-  .sheet-config input::placeholder { color: var(--muted); }
-  .btn-load {
-    background: var(--accent);
-    color: #fff;
-    border: none;
-    border-radius: 8px;
-    padding: 9px 20px;
-    font-family: var(--font);
-    font-size: 0.78rem;
-    font-weight: 600;
-    cursor: pointer;
-    transition: opacity 0.2s, transform 0.1s;
-    white-space: nowrap;
-  }
-  .btn-load:hover { opacity: 0.88; }
-  .btn-load:active { transform: scale(0.97); }
-  .btn-load:disabled { opacity: 0.45; cursor: default; }
 
   /* ── Stats Cards ── */
   .stats-grid {
@@ -317,42 +281,8 @@
   }
   @keyframes spin { to { transform: rotate(360deg); } }
 
-  /* How-to hint box */
-  .hint-box {
-    background: rgba(92, 110, 248, 0.07);
-    border: 1px solid rgba(92, 110, 248, 0.2);
-    border-radius: 10px;
-    padding: 1rem 1.25rem;
-    margin-bottom: 1.8rem;
-    font-size: 0.78rem;
-    color: var(--muted);
-    line-height: 1.7;
-  }
-  .hint-box strong { color: var(--text); }
-  .hint-box code {
-    background: var(--surface2);
-    border-radius: 4px;
-    padding: 1px 6px;
-    font-family: var(--mono);
-    font-size: 0.75rem;
-    color: var(--accent2);
-  }
-  .hint-toggle {
-    background: none;
-    border: none;
-    color: var(--accent);
-    font-family: var(--font);
-    font-size: 0.78rem;
-    cursor: pointer;
-    padding: 0;
-    margin-bottom: 0.8rem;
-    text-decoration: underline;
-    text-underline-offset: 2px;
-  }
-
   @media (max-width: 640px) {
     body { padding: 1rem; }
-    .sheet-config input { width: 100%; }
     th:nth-child(3), td:nth-child(3) { display: none; }
   }
 </style>
@@ -363,6 +293,7 @@
 <div class="header">
   <div class="header-left">
     <h1>Student Dashboard</h1>
+    <p id="last-updated">Memuat data...</p>
   </div>
 </div>
 
@@ -427,9 +358,8 @@
     <tbody id="table-body">
       <tr class="state-row">
         <td colspan="5">
-          <div class="state-icon">📋</div>
-          <div class="state-text">Belum ada data</div>
-          <div class="state-sub">Masukkan URL Google Sheet CSV dan klik Load Data</div>
+          <div class="spinner"></div>
+          <div class="state-text">Memuat data...</div>
         </td>
       </tr>
     </tbody>
@@ -437,6 +367,13 @@
 </div>
 
 <script>
+  // ============================================================
+  // GANTI URL INI DENGAN URL CSV GOOGLE SHEET KAMU
+  // Cara dapat URL: File → Share → Publish to web → CSV → Copy URL
+  // ============================================================
+  const SHEET_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQQbZg36U6B5uOfVG89XvTkxe89ndJKo0kKUVzEFv-PScIrS8HN3bvlTnXS7Wx2zcaOuyztVrDuls_2/pub?gid=1264762336&single=true&output=csv";
+  // ============================================================
+
   let allData = [];
   let sortCol = 'nama';
   let sortDir = 1;
@@ -476,10 +413,10 @@
     const colMap = {};
     headers.forEach((h, i) => { colMap[h.toLowerCase()] = i; });
 
-    const namaIdx      = findCol(colMap, ['nama','name']);
-    const completionIdx= findCol(colMap, ['completion rate','completion','completionrate']);
-    const scoreIdx     = findCol(colMap, ['score','nilai']);
-    const portfolioIdx = findCol(colMap, ['approve portfolio','portfolio','approved']);
+    const namaIdx       = findCol(colMap, ['nama','name']);
+    const completionIdx = findCol(colMap, ['completion rate','completion','completionrate']);
+    const scoreIdx      = findCol(colMap, ['score','nilai']);
+    const portfolioIdx  = findCol(colMap, ['approve portfolio','portfolio','approved']);
 
     if (namaIdx === -1)       throw new Error('Kolom "Nama" tidak ditemukan. Cek nama kolom di Sheet.');
     if (completionIdx === -1) throw new Error('Kolom "Completion Rate" tidak ditemukan.');
@@ -519,37 +456,37 @@
 
   function updateStats(data) {
     const total = data.length;
-    const avgComp = total ? (data.reduce((s,r)=>s+r.completion,0)/total).toFixed(1) : 0;
+    const avgComp  = total ? (data.reduce((s,r)=>s+r.completion,0)/total).toFixed(1) : 0;
     const avgScore = total ? (data.reduce((s,r)=>s+r.score,0)/total).toFixed(1) : 0;
     const approvedCount = data.filter(r=>r.approved).length;
-    const approvedPct = total ? Math.round(approvedCount/total*100) : 0;
+    const approvedPct   = total ? Math.round(approvedCount/total*100) : 0;
 
-    document.getElementById('stat-total').textContent = total;
+    document.getElementById('stat-total').textContent      = total;
     document.getElementById('stat-completion').textContent = total ? avgComp + '%' : '—';
-    document.getElementById('stat-score').textContent = total ? avgScore : '—';
-    document.getElementById('stat-approved').textContent = total ? approvedCount : '—';
+    document.getElementById('stat-score').textContent      = total ? avgScore : '—';
+    document.getElementById('stat-approved').textContent   = total ? approvedCount : '—';
     document.getElementById('stat-approved-pct').textContent = total ? `${approvedPct}% dari total` : 'dari total siswa';
   }
 
   function renderTable() {
-    const q = document.getElementById('search-input').value.toLowerCase();
+    const q          = document.getElementById('search-input').value.toLowerCase();
     const portFilter = document.getElementById('filter-portfolio').value;
-    const scoreFilter = document.getElementById('filter-score').value;
+    const scoreFilter= document.getElementById('filter-score').value;
 
     let filtered = allData.filter(r => {
       if (q && !r.nama.toLowerCase().includes(q)) return false;
       if (portFilter === 'approved' && !r.approved) return false;
-      if (portFilter === 'pending' && r.approved) return false;
+      if (portFilter === 'pending'  &&  r.approved) return false;
       if (scoreFilter === 'high' && r.score < 80) return false;
-      if (scoreFilter === 'mid' && (r.score < 60 || r.score >= 80)) return false;
-      if (scoreFilter === 'low' && r.score >= 60) return false;
+      if (scoreFilter === 'mid'  && (r.score < 60 || r.score >= 80)) return false;
+      if (scoreFilter === 'low'  && r.score >= 60) return false;
       return true;
     });
 
     filtered.sort((a,b) => {
-      if (sortCol === 'nama') return a.nama.localeCompare(b.nama) * sortDir;
+      if (sortCol === 'nama')       return a.nama.localeCompare(b.nama) * sortDir;
       if (sortCol === 'completion') return (a.completion - b.completion) * sortDir;
-      if (sortCol === 'score') return (a.score - b.score) * sortDir;
+      if (sortCol === 'score')      return (a.score - b.score) * sortDir;
       return 0;
     });
 
@@ -615,17 +552,14 @@
   }
 
   async function loadData() {
-        // Convert Google Sheets URL to CSV publish URL if needed
-    let url = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQQbZg36U6B5uOfVG89XvTkxe89ndJKo0kKUVzEFv-PScIrS8HN3bvlTnXS7Wx2zcaOuyztVrDuls_2/pub?output=csv";
+    // URL sudah ditanam langsung — tidak perlu input dari pengguna
+    let url = SHEET_URL;
+
+    // Auto-convert jika URL bukan format publish CSV
     const sheetMatch = url.match(/\/spreadsheets\/d\/([a-zA-Z0-9-_]+)/);
     if (sheetMatch && !url.includes('output=csv')) {
-      const id = sheetMatch[1];
-      url = `https://docs.google.com/spreadsheets/d/${id}/pub?output=csv`;
+      url = `https://docs.google.com/spreadsheets/d/${sheetMatch[1]}/pub?output=csv`;
     }
-
-    const btn = document.getElementById('btn-load');
-    btn.disabled = true;
-    btn.textContent = 'Loading...';
 
     const tbody = document.getElementById('table-body');
     tbody.innerHTML = `<tr class="state-row"><td colspan="5">
@@ -636,12 +570,13 @@
     document.getElementById('last-updated').textContent = 'Sedang memuat data...';
 
     try {
-      // Use CORS proxy for GitHub Pages
       const proxyUrl = `https://api.allorigins.win/raw?url=${encodeURIComponent(url)}`;
-      const res = await fetch(proxyUrl);
+      const res  = await fetch(proxyUrl);
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
       const text = await res.text();
-      if (text.includes('<!DOCTYPE') || text.includes('<html')) throw new Error('Sheet belum dipublish atau URL salah.');
+      if (text.includes('<!DOCTYPE') || text.includes('<html')) {
+        throw new Error('Sheet belum dipublish atau URL salah. Pastikan sudah: File → Share → Publish to web → CSV.');
+      }
 
       allData = parseCSV(text);
       updateStats(allData);
@@ -657,22 +592,11 @@
         <div class="state-text">Gagal memuat data</div>
         <div class="state-sub">${escHtml(err.message)}</div>
       </td></tr>`;
-      document.getElementById('last-updated').textContent = 'Gagal memuat — periksa URL dan pastikan Sheet sudah dipublish';
-    } finally {
-      btn.disabled = false;
-      btn.textContent = 'Load Data';
+      document.getElementById('last-updated').textContent = 'Gagal memuat — periksa URL di dalam file HTML';
     }
   }
 
-  function toggleHint() {
-    const el = document.getElementById('hint-box');
-    const btn = document.querySelector('.hint-toggle');
-    const show = el.style.display === 'none';
-    el.style.display = show ? 'block' : 'none';
-    btn.textContent = (show ? '▾' : '▸') + ' Cara mendapatkan URL CSV Google Sheet';
-  }
-
-  // Allow Enter key to trigger load
+  // Jalankan otomatis saat halaman dibuka
   loadData();
 </script>
 </body>
