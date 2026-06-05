@@ -294,7 +294,7 @@ function showResult(student) {
   document.getElementById('studentName').textContent    = student.name;
   document.getElementById('studentIdDisplay').textContent = 'ID: ' + student.id;
   document.getElementById('completionVal').textContent  = student.completion;
-  document.getElementById('completionSub').textContent  = pct >= 100 ? '6 dari 6 minggu ✓' : 'Belum semua minggu selesai';
+  document.getElementById('completionSub').textContent  = pct >= 100 ? 'Semua Task Sudah Selesai ✓' : 'Belum Semua Tasks Selesai';
   document.getElementById('scoreVal').textContent       = student.score.toLocaleString('id-ID');
   document.getElementById('scoreSub').textContent       = 'dari ' + maxDisplay.toLocaleString('id-ID') + ' poin maksimum';
 
