@@ -1,603 +1,341 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Student Dashboard</title>
-<link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet" />
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Student Score Lookup — Batch B32</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
   :root {
-    --bg: #0e0f14;
-    --surface: #16181f;
-    --surface2: #1d2030;
-    --border: rgba(255,255,255,0.07);
-    --border2: rgba(255,255,255,0.13);
-    --text: #f0f1f5;
-    --muted: #8b8fa8;
-    --accent: #5c6ef8;
-    --accent2: #38e5b0;
-    --warn: #f5a623;
-    --danger: #f06060;
-    --success: #38e5b0;
-    --font: 'Sora', sans-serif;
-    --mono: 'DM Mono', monospace;
+    --bg: #0f0e11; --surface: #1a1820; --surface2: #221f2b;
+    --border: rgba(255,255,255,0.08); --border2: rgba(255,255,255,0.15);
+    --text: #f0eef8; --text2: #9d99b0;
+    --accent: #7f77dd; --accent2: #afa9ec;
+    --green: #1d9e75; --green-light: #5dcaa5;
+    --amber: #ef9f27; --red: #e24b4a;
+    --radius: 12px; --radius-sm: 8px;
   }
-
-  body {
-    background: var(--bg);
-    color: var(--text);
-    font-family: var(--font);
-    min-height: 100vh;
-    padding: 2rem;
-  }
-
-  /* ── Header ── */
-  .header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    margin-bottom: 2.5rem;
-    flex-wrap: wrap;
-    gap: 1rem;
-  }
-  .header-left h1 {
-    font-size: 1.5rem;
-    font-weight: 700;
-    letter-spacing: -0.02em;
-  }
-  .header-left p {
-    font-size: 0.8rem;
-    color: var(--muted);
-    margin-top: 4px;
-  }
-
-  /* ── Stats Cards ── */
-  .stats-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
-    gap: 14px;
-    margin-bottom: 2rem;
-  }
-  .stat-card {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: 14px;
-    padding: 1.25rem 1.4rem;
-    position: relative;
-    overflow: hidden;
-  }
-  .stat-card::before {
-    content: '';
-    position: absolute;
-    top: 0; left: 0; right: 0;
-    height: 2px;
-    background: var(--accent-line, var(--accent));
-    border-radius: 14px 14px 0 0;
-  }
-  .stat-card .label {
-    font-size: 0.72rem;
-    color: var(--muted);
-    text-transform: uppercase;
-    letter-spacing: 0.07em;
-    margin-bottom: 10px;
-  }
-  .stat-card .value {
-    font-size: 2rem;
-    font-weight: 700;
-    letter-spacing: -0.03em;
-    line-height: 1;
-  }
-  .stat-card .sub {
-    font-size: 0.72rem;
-    color: var(--muted);
-    margin-top: 6px;
-  }
-
-  /* ── Controls ── */
-  .controls {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    margin-bottom: 1.2rem;
-    flex-wrap: wrap;
-  }
-  .search-wrap {
-    position: relative;
-    flex: 1;
-    min-width: 200px;
-  }
-  .search-wrap svg {
-    position: absolute;
-    left: 12px;
-    top: 50%;
-    transform: translateY(-50%);
-    color: var(--muted);
-    pointer-events: none;
-  }
-  .search-wrap input {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: 8px;
-    padding: 9px 12px 9px 36px;
-    color: var(--text);
-    font-family: var(--font);
-    font-size: 0.82rem;
-    width: 100%;
-    outline: none;
-    transition: border-color 0.2s;
-  }
-  .search-wrap input:focus { border-color: var(--accent); }
-  .search-wrap input::placeholder { color: var(--muted); }
-  .filter-select {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: 8px;
-    padding: 9px 14px;
-    color: var(--text);
-    font-family: var(--font);
-    font-size: 0.82rem;
-    outline: none;
-    cursor: pointer;
-    transition: border-color 0.2s;
-  }
-  .filter-select:focus { border-color: var(--accent); }
-  .count-label { font-size: 0.78rem; color: var(--muted); margin-left: auto; }
-
-  /* ── Table ── */
-  .table-wrap {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: 14px;
-    overflow: hidden;
-  }
-  table {
-    width: 100%;
-    border-collapse: collapse;
-    font-size: 0.83rem;
-    table-layout: fixed;
-  }
-  thead tr { background: var(--surface2); }
-  th {
-    padding: 13px 16px;
-    text-align: left;
-    font-size: 0.7rem;
-    font-weight: 600;
-    text-transform: uppercase;
-    letter-spacing: 0.07em;
-    color: var(--muted);
-    cursor: pointer;
-    user-select: none;
-    border-bottom: 1px solid var(--border);
-    white-space: nowrap;
-  }
-  th:hover { color: var(--text); }
-  th .sort-icon { margin-left: 4px; opacity: 0.4; font-size: 10px; }
-  th.active .sort-icon { opacity: 1; color: var(--accent); }
-  th:nth-child(1) { width: 5%; }
-  th:nth-child(2) { width: 28%; }
-  th:nth-child(3) { width: 22%; }
-  th:nth-child(4) { width: 16%; }
-  th:nth-child(5) { width: 18%; }
-
-  tbody tr {
-    border-bottom: 1px solid var(--border);
-    transition: background 0.15s;
-  }
-  tbody tr:last-child { border-bottom: none; }
-  tbody tr:hover { background: var(--surface2); }
-  td {
-    padding: 13px 16px;
-    color: var(--text);
-    vertical-align: middle;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-  }
-  td.no-col { color: var(--muted); font-size: 0.75rem; font-family: var(--mono); }
-
-  .name-cell {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-  }
-  .avatar {
-    width: 30px; height: 30px;
-    border-radius: 50%;
-    display: flex; align-items: center; justify-content: center;
-    font-size: 0.7rem; font-weight: 700;
-    flex-shrink: 0;
-  }
-
-  /* Progress Bar */
-  .progress-wrap { display: flex; align-items: center; gap: 10px; }
-  .progress-bar-bg {
-    flex: 1;
-    height: 6px;
-    background: var(--surface2);
-    border-radius: 99px;
-    overflow: hidden;
-    min-width: 60px;
-  }
-  .progress-bar-fill {
-    height: 100%;
-    border-radius: 99px;
-    transition: width 0.6s ease;
-  }
-  .progress-pct { font-size: 0.75rem; color: var(--muted); font-family: var(--mono); min-width: 36px; }
-
-  /* Score Badge */
-  .score-badge {
-    display: inline-flex;
-    align-items: center;
-    gap: 5px;
-    padding: 4px 12px;
-    border-radius: 99px;
-    font-family: var(--mono);
-    font-size: 0.78rem;
-    font-weight: 500;
-  }
-
-  /* Portfolio Badge */
-  .portfolio-badge {
-    display: inline-flex;
-    align-items: center;
-    gap: 5px;
-    padding: 5px 14px;
-    border-radius: 8px;
-    font-size: 0.74rem;
-    font-weight: 600;
-    letter-spacing: 0.04em;
-  }
-  .badge-approved {
-    background: rgba(56, 229, 176, 0.12);
-    color: var(--success);
-    border: 1px solid rgba(56, 229, 176, 0.25);
-  }
-  .badge-pending {
-    background: rgba(245, 166, 35, 0.12);
-    color: var(--warn);
-    border: 1px solid rgba(245, 166, 35, 0.25);
-  }
-
-  /* Empty / Loading / Error states */
-  .state-row td {
-    text-align: center;
-    padding: 4rem 1rem;
-    color: var(--muted);
-  }
-  .state-icon { font-size: 2rem; margin-bottom: 12px; }
-  .state-text { font-size: 0.85rem; }
-  .state-sub { font-size: 0.75rem; margin-top: 6px; color: var(--muted); opacity: 0.7; }
-
-  .spinner {
-    width: 28px; height: 28px;
-    border: 3px solid var(--border);
-    border-top-color: var(--accent);
-    border-radius: 50%;
-    animation: spin 0.7s linear infinite;
-    margin: 0 auto 12px;
-  }
+  body { background: var(--bg); color: var(--text); font-family: 'Syne', sans-serif; min-height: 100vh; display: flex; flex-direction: column; align-items: center; padding: 0 1rem; }
+  header { width: 100%; max-width: 640px; padding: 3.5rem 0 2rem; text-align: center; }
+  .badge { display: inline-block; font-size: 11px; font-weight: 500; letter-spacing: 0.12em; text-transform: uppercase; color: var(--accent); background: rgba(127,119,221,0.12); border: 0.5px solid rgba(127,119,221,0.3); border-radius: 100px; padding: 4px 14px; margin-bottom: 1.25rem; }
+  h1 { font-size: clamp(1.8rem, 5vw, 2.8rem); font-weight: 700; letter-spacing: -0.02em; line-height: 1.15; color: var(--text); margin-bottom: 0.75rem; }
+  h1 span { color: var(--accent2); }
+  .subtitle { font-size: 0.95rem; color: var(--text2); line-height: 1.6; }
+  .search-box { width: 100%; max-width: 640px; margin-bottom: 2rem; }
+  .input-wrap { position: relative; display: flex; align-items: center; }
+  .input-icon { position: absolute; left: 18px; width: 20px; height: 20px; color: var(--text2); pointer-events: none; }
+  input[type="text"] { width: 100%; background: var(--surface); border: 0.5px solid var(--border2); border-radius: var(--radius); color: var(--text); font-family: 'DM Mono', monospace; font-size: 1.1rem; padding: 1rem 1rem 1rem 3.2rem; outline: none; transition: border-color 0.2s, box-shadow 0.2s; letter-spacing: 0.05em; }
+  input[type="text"]::placeholder { color: var(--text2); opacity: 0.6; font-size: 0.95rem; letter-spacing: 0; }
+  input[type="text"]:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(127,119,221,0.18); }
+  .clear-btn { position: absolute; right: 14px; background: none; border: none; color: var(--text2); cursor: pointer; padding: 4px; border-radius: 50%; display: flex; align-items: center; justify-content: center; transition: color 0.15s, background 0.15s; opacity: 0; pointer-events: none; }
+  .clear-btn.visible { opacity: 1; pointer-events: all; }
+  .clear-btn:hover { color: var(--text); background: rgba(255,255,255,0.08); }
+  .result-area { width: 100%; max-width: 640px; min-height: 200px; }
+  .state-msg { display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 3rem 1rem; text-align: center; gap: 0.75rem; }
+  .state-msg svg { opacity: 0.3; margin-bottom: 0.5rem; }
+  .state-msg p { font-size: 0.9rem; color: var(--text2); }
+  .state-msg h3 { font-size: 1rem; font-weight: 600; }
+  .icon-wrap-red { width: 56px; height: 56px; border-radius: 50%; background: rgba(226,75,74,0.1); display: flex; align-items: center; justify-content: center; margin-bottom: 0.5rem; }
+  .spinner-wrap { display: flex; flex-direction: column; align-items: center; gap: 1rem; padding: 3rem 1rem; }
+  .spinner { width: 32px; height: 32px; border: 2px solid var(--border2); border-top-color: var(--accent); border-radius: 50%; animation: spin 0.7s linear infinite; }
   @keyframes spin { to { transform: rotate(360deg); } }
-
-  @media (max-width: 640px) {
-    body { padding: 1rem; }
-    th:nth-child(3), td:nth-child(3) { display: none; }
-  }
+  .result-card { display: none; background: var(--surface); border: 0.5px solid var(--border2); border-radius: var(--radius); overflow: hidden; animation: slideUp 0.3s cubic-bezier(0.34,1.56,0.64,1); }
+  @keyframes slideUp { from { opacity: 0; transform: translateY(16px) scale(0.98); } to { opacity: 1; transform: translateY(0) scale(1); } }
+  .card-header { padding: 1.5rem 1.5rem 1.25rem; border-bottom: 0.5px solid var(--border); display: flex; align-items: flex-start; gap: 1rem; }
+  .avatar { width: 52px; height: 52px; min-width: 52px; border-radius: 50%; background: linear-gradient(135deg, var(--accent), #534ab7); display: flex; align-items: center; justify-content: center; font-size: 1.1rem; font-weight: 700; color: #fff; letter-spacing: -0.01em; }
+  .card-header-info { flex: 1; min-width: 0; }
+  .student-name { font-size: 1.2rem; font-weight: 700; letter-spacing: -0.01em; line-height: 1.2; margin-bottom: 4px; word-break: break-word; }
+  .student-id { font-family: 'DM Mono', monospace; font-size: 0.8rem; color: var(--text2); letter-spacing: 0.05em; }
+  .card-body { padding: 1.25rem 1.5rem; display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+  .metric-card { background: var(--surface2); border-radius: var(--radius-sm); padding: 1rem 1.1rem; position: relative; overflow: hidden; }
+  .metric-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px; border-radius: 2px 2px 0 0; }
+  .metric-card.completion::before { background: var(--green); }
+  .metric-card.score::before { background: var(--accent); }
+  .metric-label { font-size: 0.72rem; font-weight: 500; letter-spacing: 0.1em; text-transform: uppercase; color: var(--text2); margin-bottom: 0.5rem; }
+  .metric-value { font-size: 2rem; font-weight: 700; letter-spacing: -0.02em; line-height: 1; }
+  .metric-card.completion .metric-value { color: var(--green-light); }
+  .metric-card.score .metric-value { color: var(--accent2); }
+  .metric-sub { font-size: 0.75rem; color: var(--text2); margin-top: 0.4rem; }
+  .progress-bar-wrap { margin-top: 0.6rem; height: 4px; border-radius: 2px; background: rgba(255,255,255,0.08); overflow: hidden; }
+  .progress-bar-fill { height: 100%; border-radius: 2px; background: var(--green); transition: width 0.8s cubic-bezier(0.4,0,0.2,1); width: 0%; }
+  .card-footer { padding: 0.875rem 1.5rem; border-top: 0.5px solid var(--border); display: flex; align-items: center; gap: 0.75rem; }
+  .status-pill { display: inline-flex; align-items: center; gap: 5px; font-size: 0.75rem; font-weight: 600; padding: 4px 12px; border-radius: 100px; letter-spacing: 0.02em; }
+  .status-pill.excellent { background: rgba(29,158,117,0.15); color: var(--green-light); border: 0.5px solid rgba(93,202,165,0.25); }
+  .status-pill.good { background: rgba(127,119,221,0.15); color: var(--accent2); border: 0.5px solid rgba(175,169,236,0.25); }
+  .status-pill.warning { background: rgba(239,159,39,0.12); color: var(--amber); border: 0.5px solid rgba(239,159,39,0.25); }
+  .status-pill.danger { background: rgba(226,75,74,0.12); color: var(--red); border: 0.5px solid rgba(226,75,74,0.25); }
+  .status-dot { width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
+  .linkedin-link { margin-left: auto; display: inline-flex; align-items: center; gap: 6px; font-size: 0.78rem; color: var(--text2); text-decoration: none; padding: 5px 10px; border-radius: 6px; border: 0.5px solid var(--border2); transition: color 0.15s, border-color 0.15s, background 0.15s; }
+  .linkedin-link:hover { color: var(--text); border-color: rgba(255,255,255,0.3); background: rgba(255,255,255,0.05); }
+  footer { padding: 2.5rem 1rem; color: var(--text2); font-size: 0.78rem; text-align: center; line-height: 1.6; }
 </style>
 </head>
 <body>
 
-<!-- Header -->
-<div class="header">
-  <div class="header-left">
-    <h1>Student Dashboard</h1>
-    <p id="last-updated">Memuat data...</p>
-  </div>
-</div>
+<header>
+  <div class="badge">Batch B32 · PRO Track</div>
+  <h1>Student <span>Score</span><br>Lookup</h1>
+  <p class="subtitle">Masukkan Student ID untuk melihat progress dan total score kamu.</p>
+</header>
 
-<!-- Stats Summary -->
-<div class="stats-grid">
-  <div class="stat-card" style="--accent-line: var(--accent)">
-    <div class="label">Total Siswa</div>
-    <div class="value" id="stat-total">—</div>
-    <div class="sub">terdaftar</div>
-  </div>
-  <div class="stat-card" style="--accent-line: var(--accent2)">
-    <div class="label">Rata-rata Completion</div>
-    <div class="value" id="stat-completion">—</div>
-    <div class="sub">dari seluruh siswa</div>
-  </div>
-  <div class="stat-card" style="--accent-line: var(--warn)">
-    <div class="label">Rata-rata Score</div>
-    <div class="value" id="stat-score">—</div>
-    <div class="sub">nilai rata-rata</div>
-  </div>
-  <div class="stat-card" style="--accent-line: var(--success)">
-    <div class="label">Portfolio Approved</div>
-    <div class="value" id="stat-approved">—</div>
-    <div class="sub" id="stat-approved-pct">dari total siswa</div>
-  </div>
-</div>
-
-<!-- Controls -->
-<div class="controls">
-  <div class="search-wrap">
-    <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+<div class="search-box">
+  <div class="input-wrap">
+    <svg class="input-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
       <circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/>
     </svg>
-    <input type="text" id="search-input" placeholder="Cari nama siswa..." oninput="renderTable()" />
+    <input type="text" id="searchInput" placeholder="Ketik Student ID kamu..." maxlength="20" autocomplete="off" autocorrect="off" spellcheck="false" disabled>
+    <button class="clear-btn" id="clearBtn" aria-label="Clear input">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round">
+        <path d="M18 6 6 18M6 6l12 12"/>
+      </svg>
+    </button>
   </div>
-  <select class="filter-select" id="filter-portfolio" onchange="renderTable()">
-    <option value="all">Semua Portfolio</option>
-    <option value="approved">Approved</option>
-    <option value="pending">Pending</option>
-  </select>
-  <select class="filter-select" id="filter-score" onchange="renderTable()">
-    <option value="all">Semua Score</option>
-    <option value="high">Score ≥ 80</option>
-    <option value="mid">Score 60–79</option>
-    <option value="low">Score &lt; 60</option>
-  </select>
-  <span class="count-label" id="count-label"></span>
 </div>
 
-<!-- Table -->
-<div class="table-wrap">
-  <table>
-    <thead>
-      <tr>
-        <th onclick="sortBy('no')">#<span class="sort-icon" id="sort-no">↕</span></th>
-        <th onclick="sortBy('nama')">Nama<span class="sort-icon" id="sort-nama">↕</span></th>
-        <th onclick="sortBy('completion')">Completion Rate<span class="sort-icon" id="sort-completion">↕</span></th>
-        <th onclick="sortBy('score')">Score<span class="sort-icon" id="sort-score">↕</span></th>
-        <th>Approve Portfolio</th>
-      </tr>
-    </thead>
-    <tbody id="table-body">
-      <tr class="state-row">
-        <td colspan="5">
-          <div class="spinner"></div>
-          <div class="state-text">Memuat data...</div>
-        </td>
-      </tr>
-    </tbody>
-  </table>
+<div class="result-area" id="resultArea">
+
+  <!-- Loading state -->
+  <div class="spinner-wrap" id="stateLoading">
+    <div class="spinner"></div>
+    <p style="font-size:0.85rem; color:var(--text2);">Memuat data dari CSV…</p>
+  </div>
+
+  <!-- Error state (CSV not found) -->
+  <div class="state-msg" id="stateError" style="display:none">
+    <div class="icon-wrap-red">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#e24b4a" stroke-width="2" stroke-linecap="round">
+        <circle cx="12" cy="12" r="10"/><path d="M12 8v4m0 4h.01"/>
+      </svg>
+    </div>
+    <h3>Gagal memuat data</h3>
+    <p id="stateErrorMsg">Pastikan file <code style="background:var(--surface2);padding:2px 6px;border-radius:4px;font-size:0.8rem">data.csv</code> ada di folder yang sama dengan <code style="background:var(--surface2);padding:2px 6px;border-radius:4px;font-size:0.8rem">index.html</code></p>
+  </div>
+
+  <!-- Empty state -->
+  <div class="state-msg" id="stateEmpty" style="display:none">
+    <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/>
+      <path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+    </svg>
+    <p>Masukkan Student ID untuk melihat hasil scoring kamu.</p>
+  </div>
+
+  <!-- Not found state -->
+  <div class="state-msg" id="stateNotFound" style="display:none">
+    <div class="icon-wrap-red">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#e24b4a" stroke-width="2" stroke-linecap="round">
+        <circle cx="12" cy="12" r="10"/><path d="M15 9l-6 6M9 9l6 6"/>
+      </svg>
+    </div>
+    <h3>Student ID tidak ditemukan</h3>
+    <p>Periksa kembali ID kamu dan coba lagi.</p>
+  </div>
+
+  <!-- Result card -->
+  <div class="result-card" id="resultCard">
+    <div class="card-header">
+      <div class="avatar" id="avatarEl"></div>
+      <div class="card-header-info">
+        <div class="student-name" id="studentName"></div>
+        <div class="student-id" id="studentIdDisplay"></div>
+      </div>
+    </div>
+    <div class="card-body">
+      <div class="metric-card completion">
+        <div class="metric-label">% Completion</div>
+        <div class="metric-value" id="completionVal"></div>
+        <div class="metric-sub" id="completionSub"></div>
+        <div class="progress-bar-wrap">
+          <div class="progress-bar-fill" id="progressFill"></div>
+        </div>
+      </div>
+      <div class="metric-card score">
+        <div class="metric-label">Total Score</div>
+        <div class="metric-value" id="scoreVal"></div>
+        <div class="metric-sub" id="scoreSub"></div>
+      </div>
+    </div>
+    <div class="card-footer">
+      <span class="status-pill" id="statusPill">
+        <span class="status-dot"></span>
+        <span id="statusText"></span>
+      </span>
+      <a class="linkedin-link" id="linkedinLink" href="#" target="_blank" rel="noopener noreferrer" style="display:none">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 0 1-2.063-2.065 2.064 2.064 0 1 1 2.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg>
+        LinkedIn
+      </a>
+    </div>
+  </div>
 </div>
+
+<footer>
+  Batch B32 · PRO Track &nbsp;·&nbsp; Data diperbarui cukup dengan mengganti file <code style="background:var(--surface2);padding:1px 5px;border-radius:4px">data.csv</code>
+</footer>
 
 <script>
-  // ============================================================
-  // GANTI URL INI DENGAN URL CSV GOOGLE SHEET KAMU
-  // Cara dapat URL: File → Share → Publish to web → CSV → Copy URL
-  // ============================================================
-  const SHEET_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQQbZg36U6B5uOfVG89XvTkxe89ndJKo0kKUVzEFv-PScIrS8HN3bvlTnXS7Wx2zcaOuyztVrDuls_2/pub?gid=1264762336&single=true&output=csv";
-  // ============================================================
+// ─── CONFIG ────────────────────────────────────────────────────────────────
+// Nama file CSV harus sama persis dengan yang ada di repo GitHub kamu
+const CSV_FILE = 'data.csv';
 
-  let allData = [];
-  let sortCol = 'nama';
-  let sortDir = 1;
+// Kolom mana yang dipakai (index 0-based, sesuai urutan kolom di CSV)
+// Default sesuai struktur file B32:
+// 0=StudentID, 1=Name, 12=%Completion, 13=TotalScore, 14=LinkedIn
+const COL = { id: 0, name: 1, completion: 12, score: 13, linkedin: 14 };
 
-  const AVATAR_COLORS = [
-    ['#5c6ef8','#c7ceff'],['#38e5b0','#0d3d2e'],['#f5a623','#3d2900'],
-    ['#f06060','#3d0000'],['#a78bfa','#2e1a5e'],['#34d399','#064e3b'],
-  ];
+// Baris header di CSV ada di baris ke berapa? (0-based)
+// File B32 punya 1 baris kosong di atas, lalu header di baris ke-1
+const HEADER_ROW = 1;
+// ───────────────────────────────────────────────────────────────────────────
 
-  function avatarStyle(name) {
-    const idx = name.charCodeAt(0) % AVATAR_COLORS.length;
-    const [bg, fg] = AVATAR_COLORS[idx];
-    return `background:${bg};color:${fg}`;
-  }
+let lookup = {};
+let maxScore = 0;
 
-  function initials(name) {
-    return name.trim().split(/\s+/).slice(0,2).map(w=>w[0].toUpperCase()).join('');
-  }
-
-  function progressColor(pct) {
-    if (pct >= 80) return 'var(--success)';
-    if (pct >= 50) return 'var(--warn)';
-    return 'var(--danger)';
-  }
-
-  function scoreColor(score) {
-    if (score >= 80) return { bg:'rgba(56,229,176,0.12)', text:'var(--success)', border:'rgba(56,229,176,0.25)' };
-    if (score >= 60) return { bg:'rgba(245,166,35,0.12)',  text:'var(--warn)',    border:'rgba(245,166,35,0.25)' };
-    return { bg:'rgba(240,96,96,0.12)', text:'var(--danger)', border:'rgba(240,96,96,0.25)' };
-  }
-
-  function parseCSV(text) {
-    const lines = text.trim().split('\n');
-    if (lines.length < 2) throw new Error('Data kosong atau format tidak valid');
-    const headers = lines[0].split(',').map(h => h.trim().replace(/^"|"$/g, ''));
-
-    const colMap = {};
-    headers.forEach((h, i) => { colMap[h.toLowerCase()] = i; });
-
-    const namaIdx       = findCol(colMap, ['nama','name']);
-    const completionIdx = findCol(colMap, ['completion rate','completion','completionrate']);
-    const scoreIdx      = findCol(colMap, ['score','nilai']);
-    const portfolioIdx  = findCol(colMap, ['approve portfolio','portfolio','approved']);
-
-    if (namaIdx === -1)       throw new Error('Kolom "Nama" tidak ditemukan. Cek nama kolom di Sheet.');
-    if (completionIdx === -1) throw new Error('Kolom "Completion Rate" tidak ditemukan.');
-    if (scoreIdx === -1)      throw new Error('Kolom "Score" tidak ditemukan.');
-    if (portfolioIdx === -1)  throw new Error('Kolom "Approve Portfolio" tidak ditemukan.');
-
-    const rows = [];
-    for (let i = 1; i < lines.length; i++) {
-      const cols = splitCSVLine(lines[i]);
-      const nama = (cols[namaIdx]||'').trim().replace(/^"|"$/g,'');
-      if (!nama) continue;
-      const completion = parseFloat((cols[completionIdx]||'0').replace('%','')) || 0;
-      const score      = parseFloat((cols[scoreIdx]||'0')) || 0;
-      const portRaw    = (cols[portfolioIdx]||'').trim().toUpperCase();
-      const approved   = portRaw === 'TRUE' || portRaw === '1' || portRaw === 'YA' || portRaw === 'YES';
-      rows.push({ nama, completion: Math.min(100, completion), score, approved });
-    }
-    return rows;
-  }
-
-  function findCol(map, candidates) {
-    for (const c of candidates) if (map[c] !== undefined) return map[c];
-    return -1;
-  }
-
-  function splitCSVLine(line) {
-    const result = []; let cur = ''; let inQ = false;
+// ── CSV parser sederhana yang handle quoted fields (misal nama dengan koma)
+function parseCSV(text) {
+  const rows = [];
+  const lines = text.split(/\r?\n/);
+  for (const line of lines) {
+    if (!line.trim()) { rows.push([]); continue; }
+    const cols = [];
+    let cur = '', inQ = false;
     for (let i = 0; i < line.length; i++) {
-      const ch = line[i];
-      if (ch === '"') { inQ = !inQ; }
-      else if (ch === ',' && !inQ) { result.push(cur); cur = ''; }
-      else cur += ch;
+      const c = line[i];
+      if (c === '"') { inQ = !inQ; }
+      else if (c === ',' && !inQ) { cols.push(cur.trim()); cur = ''; }
+      else { cur += c; }
     }
-    result.push(cur);
-    return result;
+    cols.push(cur.trim());
+    rows.push(cols);
   }
+  return rows;
+}
 
-  function updateStats(data) {
-    const total = data.length;
-    const avgComp  = total ? (data.reduce((s,r)=>s+r.completion,0)/total).toFixed(1) : 0;
-    const avgScore = total ? (data.reduce((s,r)=>s+r.score,0)/total).toFixed(1) : 0;
-    const approvedCount = data.filter(r=>r.approved).length;
-    const approvedPct   = total ? Math.round(approvedCount/total*100) : 0;
+async function loadCSV() {
+  try {
+    const res = await fetch(CSV_FILE);
+    if (!res.ok) throw new Error('HTTP ' + res.status);
+    const text = await res.text();
+    const rows = parseCSV(text);
 
-    document.getElementById('stat-total').textContent      = total;
-    document.getElementById('stat-completion').textContent = total ? avgComp + '%' : '—';
-    document.getElementById('stat-score').textContent      = total ? avgScore : '—';
-    document.getElementById('stat-approved').textContent   = total ? approvedCount : '—';
-    document.getElementById('stat-approved-pct').textContent = total ? `${approvedPct}% dari total` : 'dari total siswa';
-  }
+    rows.forEach((row, i) => {
+      if (i <= HEADER_ROW) return;       // skip baris kosong & header
+      const id = (row[COL.id] || '').trim();
+      if (!id) return;                   // skip baris kosong
 
-  function renderTable() {
-    const q          = document.getElementById('search-input').value.toLowerCase();
-    const portFilter = document.getElementById('filter-portfolio').value;
-    const scoreFilter= document.getElementById('filter-score').value;
+      const scoreNum = parseInt((row[COL.score] || '0').replace(/[^\d]/g, '')) || 0;
+      if (scoreNum > maxScore) maxScore = scoreNum;
 
-    let filtered = allData.filter(r => {
-      if (q && !r.nama.toLowerCase().includes(q)) return false;
-      if (portFilter === 'approved' && !r.approved) return false;
-      if (portFilter === 'pending'  &&  r.approved) return false;
-      if (scoreFilter === 'high' && r.score < 80) return false;
-      if (scoreFilter === 'mid'  && (r.score < 60 || r.score >= 80)) return false;
-      if (scoreFilter === 'low'  && r.score >= 60) return false;
-      return true;
+      lookup[id] = {
+        id,
+        name:       (row[COL.name] || '').trim(),
+        completion: (row[COL.completion] || '0%').trim(),
+        score:      scoreNum,
+        linkedin:   (row[COL.linkedin] || '').trim()
+      };
     });
 
-    filtered.sort((a,b) => {
-      if (sortCol === 'nama')       return a.nama.localeCompare(b.nama) * sortDir;
-      if (sortCol === 'completion') return (a.completion - b.completion) * sortDir;
-      if (sortCol === 'score')      return (a.score - b.score) * sortDir;
-      return 0;
+    // Selesai loading — aktifkan search
+    show('stateEmpty');
+    document.getElementById('searchInput').disabled = false;
+    document.getElementById('searchInput').focus();
+
+  } catch (err) {
+    document.getElementById('stateErrorMsg').innerHTML =
+      'Pastikan file <code style="background:var(--surface2);padding:2px 6px;border-radius:4px;font-size:0.8rem">' +
+      CSV_FILE + '</code> ada di folder yang sama dengan <code style="background:var(--surface2);padding:2px 6px;border-radius:4px;font-size:0.8rem">index.html</code>' +
+      '<br><small style="opacity:0.6">' + err.message + '</small>';
+    show('stateError');
+  }
+}
+
+function show(id) {
+  ['stateLoading','stateError','stateEmpty','stateNotFound','resultCard']
+    .forEach(s => {
+      const el = document.getElementById(s);
+      if (s === 'resultCard') el.style.display = (s === id) ? 'block' : 'none';
+      else el.style.display = (s === id) ? 'flex' : 'none';
     });
+}
 
-    document.getElementById('count-label').textContent =
-      filtered.length !== allData.length
-        ? `${filtered.length} dari ${allData.length} siswa`
-        : `${allData.length} siswa`;
+function getInitials(name) {
+  const parts = name.trim().split(/\s+/);
+  if (parts.length === 1) return parts[0].substring(0, 2).toUpperCase();
+  return (parts[0][0] + parts[1][0]).toUpperCase();
+}
 
-    const tbody = document.getElementById('table-body');
-    if (filtered.length === 0) {
-      tbody.innerHTML = `<tr class="state-row"><td colspan="5">
-        <div class="state-icon">🔍</div>
-        <div class="state-text">Tidak ada siswa yang cocok</div>
-        <div class="state-sub">Coba ubah filter atau kata kunci pencarian</div>
-      </td></tr>`;
-      return;
-    }
+function getStatus(pct) {
+  if (pct >= 100) return { label: 'Full Completion', cls: 'excellent' };
+  if (pct >= 90)  return { label: 'Hampir Selesai',  cls: 'good' };
+  if (pct >= 60)  return { label: 'Perlu Ditingkatkan', cls: 'warning' };
+  return { label: 'Jauh Tertinggal', cls: 'danger' };
+}
 
-    tbody.innerHTML = filtered.map((r, i) => {
-      const sc = scoreColor(r.score);
-      return `<tr>
-        <td class="no-col">${i+1}</td>
-        <td>
-          <div class="name-cell">
-            <div class="avatar" style="${avatarStyle(r.nama)}">${initials(r.nama)}</div>
-            <span>${escHtml(r.nama)}</span>
-          </div>
-        </td>
-        <td>
-          <div class="progress-wrap">
-            <div class="progress-bar-bg">
-              <div class="progress-bar-fill" style="width:${r.completion}%;background:${progressColor(r.completion)}"></div>
-            </div>
-            <span class="progress-pct">${r.completion.toFixed(0)}%</span>
-          </div>
-        </td>
-        <td>
-          <span class="score-badge" style="background:${sc.bg};color:${sc.text};border:1px solid ${sc.border}">
-            ${r.score.toFixed(1)}
-          </span>
-        </td>
-        <td>
-          <span class="portfolio-badge ${r.approved ? 'badge-approved' : 'badge-pending'}">
-            ${r.approved ? '✓ Approved' : '⏳ Pending'}
-          </span>
-        </td>
-      </tr>`;
-    }).join('');
+function showResult(student) {
+  show('resultCard');
+  document.getElementById('resultCard').style.animation = 'none';
+  void document.getElementById('resultCard').offsetWidth;
+  document.getElementById('resultCard').style.animation = '';
+
+  const pct = parseFloat(student.completion);
+  const maxDisplay = maxScore > 0 ? maxScore : 5400;
+
+  document.getElementById('avatarEl').textContent       = getInitials(student.name);
+  document.getElementById('studentName').textContent    = student.name;
+  document.getElementById('studentIdDisplay').textContent = 'ID: ' + student.id;
+  document.getElementById('completionVal').textContent  = student.completion;
+  document.getElementById('completionSub').textContent  = pct >= 100 ? '6 dari 6 minggu ✓' : 'Belum semua minggu selesai';
+  document.getElementById('scoreVal').textContent       = student.score.toLocaleString('id-ID');
+  document.getElementById('scoreSub').textContent       = 'dari ' + maxDisplay.toLocaleString('id-ID') + ' poin maksimum';
+
+  const fillEl = document.getElementById('progressFill');
+  fillEl.style.width = '0%';
+  setTimeout(() => { fillEl.style.width = pct + '%'; }, 50);
+
+  const status = getStatus(pct);
+  document.getElementById('statusPill').className = 'status-pill ' + status.cls;
+  document.getElementById('statusText').textContent = status.label;
+
+  const li = document.getElementById('linkedinLink');
+  if (student.linkedin && student.linkedin.startsWith('http')) {
+    li.href = student.linkedin;
+    li.style.display = 'inline-flex';
+  } else {
+    li.style.display = 'none';
   }
+}
 
-  function escHtml(str) {
-    return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
-  }
+const searchInput = document.getElementById('searchInput');
+const clearBtn    = document.getElementById('clearBtn');
 
-  function sortBy(col) {
-    if (sortCol === col) { sortDir *= -1; }
-    else { sortCol = col; sortDir = 1; }
-    ['no','nama','completion','score'].forEach(c => {
-      document.getElementById('sort-'+c).textContent = c === sortCol ? (sortDir===1?'↑':'↓') : '↕';
-      document.getElementById('sort-'+c).parentElement.classList.toggle('active', c===sortCol);
-    });
-    renderTable();
-  }
+let debounceTimer;
+searchInput.addEventListener('input', function() {
+  const val = this.value.trim();
+  clearBtn.classList.toggle('visible', val.length > 0);
+  clearTimeout(debounceTimer);
+  debounceTimer = setTimeout(() => {
+    if (!val) { show('stateEmpty'); return; }
+    const found = lookup[val];
+    if (found) showResult(found);
+    else show('stateNotFound');
+  }, 300);
+});
 
-  async function loadData() {
-    // URL sudah ditanam langsung — tidak perlu input dari pengguna
-    let url = SHEET_URL;
+clearBtn.addEventListener('click', function() {
+  searchInput.value = '';
+  clearBtn.classList.remove('visible');
+  show('stateEmpty');
+  searchInput.focus();
+});
 
-    // Auto-convert jika URL bukan format publish CSV
-    const sheetMatch = url.match(/\/spreadsheets\/d\/([a-zA-Z0-9-_]+)/);
-    if (sheetMatch && !url.includes('output=csv')) {
-      url = `https://docs.google.com/spreadsheets/d/${sheetMatch[1]}/pub?output=csv`;
-    }
+searchInput.addEventListener('keydown', function(e) {
+  if (e.key === 'Escape') { this.value = ''; clearBtn.classList.remove('visible'); show('stateEmpty'); }
+});
 
-    const tbody = document.getElementById('table-body');
-    tbody.innerHTML = `<tr class="state-row"><td colspan="5">
-      <div class="spinner"></div>
-      <div class="state-text">Mengambil data dari Google Sheet...</div>
-    </td></tr>`;
-
-    document.getElementById('last-updated').textContent = 'Sedang memuat data...';
-
-    try {
-      const proxyUrl = `https://api.allorigins.win/raw?url=${encodeURIComponent(url)}`;
-      const res  = await fetch(proxyUrl);
-      if (!res.ok) throw new Error(`HTTP ${res.status}`);
-      const text = await res.text();
-      if (text.includes('<!DOCTYPE') || text.includes('<html')) {
-        throw new Error('Sheet belum dipublish atau URL salah. Pastikan sudah: File → Share → Publish to web → CSV.');
-      }
-
-      allData = parseCSV(text);
-      updateStats(allData);
-      renderTable();
-
-      const now = new Date().toLocaleString('id-ID', { dateStyle:'medium', timeStyle:'short' });
-      document.getElementById('last-updated').textContent = `Terakhir diperbarui: ${now} • ${allData.length} siswa`;
-    } catch (err) {
-      allData = [];
-      updateStats([]);
-      tbody.innerHTML = `<tr class="state-row"><td colspan="5">
-        <div class="state-icon">⚠️</div>
-        <div class="state-text">Gagal memuat data</div>
-        <div class="state-sub">${escHtml(err.message)}</div>
-      </td></tr>`;
-      document.getElementById('last-updated').textContent = 'Gagal memuat — periksa URL di dalam file HTML';
-    }
-  }
-
-  // Jalankan otomatis saat halaman dibuka
-  loadData();
+// Mulai load CSV saat halaman terbuka
+loadCSV();
 </script>
 </body>
 </html>
