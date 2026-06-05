@@ -616,7 +616,7 @@
 
   async function loadData() {
         // Convert Google Sheets URL to CSV publish URL if needed
-    let url = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQQbZg36U6B5uOfVG89XvTkxe89ndJKo0kKUVzEFv-PScIrS8HN3bvlTnXS7Wx2zcaOuyztVrDuls_2/pub?gid=1264762336&single=true&output=csv";
+    let url = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQQbZg36U6B5uOfVG89XvTkxe89ndJKo0kKUVzEFv-PScIrS8HN3bvlTnXS7Wx2zcaOuyztVrDuls_2/pub?output=csv";
     const sheetMatch = url.match(/\/spreadsheets\/d\/([a-zA-Z0-9-_]+)/);
     if (sheetMatch && !url.includes('output=csv')) {
       const id = sheetMatch[1];
